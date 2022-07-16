@@ -12,6 +12,7 @@ import time
 import board
 from functions import setupButton
 from winder import Winder
+from micropython import const
 from digitalio import DigitalInOut, Direction, Pull
 
 print("Raspberry Pi Pico - Watch Winder")
@@ -20,8 +21,9 @@ led = DigitalInOut(board.LED)
 led.direction = Direction.OUTPUT
 led.value = True
 
-last_rotation = 0  # time of last_rotation
-rotation_offset = 60  # time between rotations
+last_rotation = 0                    # time of last_rotation
+rotation_timeinterval_offset = const(60*3)  # time between rotations
+rotation_per_timeinterval = const(3)        # rotations oer timeinterval
 
 # Mode button setup
 switch = setupButton(board.GP10)
@@ -60,7 +62,7 @@ while True:
     stepped = False
 
     for winder in winders:  # update all winders
-        if(winder.update() is True):
+        if(winder.update()):
             stepped = True
 
     if stepped is True:  # if we did a step, trigger a delay
@@ -71,8 +73,8 @@ while True:
         for winder in winders:
             winder.addRotation()
 
-    if (time.time() - last_rotation > rotation_offset):  # add new steps every `rotation_offset` seconds
+    if (abs(time.time() - last_rotation) > rotation_timeinterval_offset):  # add new steps every `rotation_offset` seconds
         print("Added new Rotation")
         last_rotation = time.time()
         for winder in winders:
-            winder.addRotation(direction = Winder.RANDOM, count = 2)
+            winder.addRotation(direction = Winder.RANDOM, count = rotation_per_timeinterval)
