@@ -55,7 +55,7 @@ def blink(times):
 
 while True:
 
-    if winder1.update() or winder2.update():  # update both winders and if we did a step trigger a delay
+    if (winder1.update() & winder2.update()) == True:  # update both winders and if we did a step trigger a delay
         winder1.waitAfterStep()
 
     if not button.value:
@@ -67,5 +67,5 @@ while True:
     if (time.time() - last_rotation > rotation_offset):  # add new steps every `rotation_offset` seconds
         print("Added new Rotation")
         last_rotation = time.time()
-        winder1.addRotation()
-        winder2.addRotation()
+        winder1.addRotation(direction = Winder.RANDOM, count = 2)
+        winder2.addRotation(direction = Winder.RANDOM, count = 2)
