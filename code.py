@@ -10,6 +10,7 @@
 
 import time
 import board
+from functions import setupButton
 from winder import Winder
 from digitalio import DigitalInOut, Direction, Pull
 
@@ -23,9 +24,7 @@ last_rotation = 0  # time of last_rotation
 rotation_offset = 60  # time between rotations
 
 # Mode button setup
-button = DigitalInOut(board.GP10)
-button.direction = Direction.INPUT
-button.pull = Pull.UP
+switch = setupButton(board.GP10)
 
 #
 W1_coils = (
@@ -41,9 +40,10 @@ W2_coils = (
     DigitalInOut(board.GP9),  # Motor2 - B2
 )
 
-winder1 = Winder(W1_coils)
-winder2 = Winder(W2_coils)
+winders = []
 
+winders.append(Winder(W1_coils))
+winders.append(Winder(W2_coils))
 
 def blink(times):
     for _ in range(times):
@@ -55,17 +55,24 @@ def blink(times):
 
 while True:
 
-    if (winder1.update() & winder2.update()) == True:  # update both winders and if we did a step trigger a delay
-        winder1.waitAfterStep()
+    switch.update()
 
-    if not button.value:
+    stepped = False
+
+    for winder in winders:  # update all winders
+        if(winder.update() is True):
+            stepped = True
+
+    if stepped is True:  # if we did a step, trigger a delay
+        winders[0].waitAfterStep()
+
+    if switch.rose:
         blink(2)
-        winder1.addRotation()
-        winder2.addRotation()
-        time.sleep(0.8)  # big debounce
+        for winder in winders:
+            winder.addRotation()
 
     if (time.time() - last_rotation > rotation_offset):  # add new steps every `rotation_offset` seconds
         print("Added new Rotation")
         last_rotation = time.time()
-        winder1.addRotation(direction = Winder.RANDOM, count = 2)
-        winder2.addRotation(direction = Winder.RANDOM, count = 2)
+        for winder in winders:
+            winder.addRotation(direction = Winder.RANDOM, count = 2)
