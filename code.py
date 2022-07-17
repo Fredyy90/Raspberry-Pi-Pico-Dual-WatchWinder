@@ -22,13 +22,13 @@ led.direction = Direction.OUTPUT
 led.value = True
 
 last_rotation = 0                    # time of last_rotation
-rotation_timeinterval_offset = const(60*3)  # time between rotations
+rotation_timeinterval_offset = const(60*5)  # time between rotations
 rotation_per_timeinterval = const(3)        # rotations oer timeinterval
 
-# Mode button setup
-switch = setupButton(board.GP10)
+# button setup
+turboButton = setupButton(board.GP10)
 
-#
+# winders setup
 W1_coils = (
     DigitalInOut(board.GP2),  # Motor1 - A1
     DigitalInOut(board.GP3),  # Motor1 - A2
@@ -57,7 +57,7 @@ def blink(times):
 
 while True:
 
-    switch.update()
+    turboButton.update()
 
     stepped = False
 
@@ -68,13 +68,14 @@ while True:
     if stepped is True:  # if we did a step, trigger a delay
         winders[0].waitAfterStep()
 
-    if switch.rose:
+    if turboButton.rose:
         blink(2)
         for winder in winders:
-            winder.addRotation()
+            winder.addRotation(direction = Winder.FORWARD, count = 200)
 
     if (abs(time.time() - last_rotation) > rotation_timeinterval_offset):  # add new steps every `rotation_offset` seconds
         print("Added new Rotation")
         last_rotation = time.time()
         for winder in winders:
             winder.addRotation(direction = Winder.RANDOM, count = rotation_per_timeinterval)
+
