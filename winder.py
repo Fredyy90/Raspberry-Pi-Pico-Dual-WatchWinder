@@ -17,6 +17,7 @@ class Winder:
     FORWARD = const(1)
     BACKWARD = const(2)
     RANDOM = const(3)
+    RANDOM_SPLIT = const(4)
 
     def __init__(self, coils) -> None:
 
@@ -56,8 +57,10 @@ class Winder:
             randomDir = random()
             if randomDir > 0.5:
                 self.CWSteps += self.stepsPerRotation * count
-                print("Added " + str(count) + " Roations -> CW")
             else:
                 self.CCWSteps += self.stepsPerRotation * count
-                print("Added " + str(count) + " Roations <- CCW")
+        elif direction == RANDOM_SPLIT:
+            cwRotations = round(count * random())
+            self.CWSteps += self.stepsPerRotation * cwRotations
+            self.CCWSteps += self.stepsPerRotation * (count - cwRotations)
 
