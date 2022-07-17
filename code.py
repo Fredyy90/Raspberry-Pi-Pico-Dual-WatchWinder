@@ -21,12 +21,15 @@ led = DigitalInOut(board.LED)
 led.direction = Direction.OUTPUT
 led.value = True
 
-last_rotation = 0                    # time of last_rotation
-rotation_timeinterval_offset = const(60*5)  # time between rotations
-rotation_per_timeinterval = const(3)        # rotations oer timeinterval
+last_rotation = 0                           # time of last_rotation
+rotation_timeinterval_offset = const(60*5)  # time between rotations | Default Value: 60*5 | 5 Minutes/300 Seconds
+rotation_per_timeinterval = const(3)        # rotations per timeinterval | Default value: 3
+turbo_button_rotation_amount = const(200)   # roations to add to a winder, when turbo button pressed | Default Value: 200
 
 # button setup
-turboButton = setupButton(board.GP10)
+buttons = {}
+buttons["turboButtonW0"] = setupButton(board.GP10)
+buttons["turboButtonW1"] = setupButton(board.GP11)
 
 # winders setup
 W1_coils = (
@@ -43,7 +46,6 @@ W2_coils = (
 )
 
 winders = []
-
 winders.append(Winder(W1_coils))
 winders.append(Winder(W2_coils))
 
@@ -57,7 +59,8 @@ def blink(times):
 
 while True:
 
-    turboButton.update()
+    for button in buttons: # update all buttons
+        buttons[button].update()
 
     stepped = False
 
@@ -68,14 +71,17 @@ while True:
     if stepped is True:  # if we did a step, trigger a delay
         winders[0].waitAfterStep()
 
-    if turboButton.rose:
+    if buttons["turboButtonW0"].rose:  # if turbo button for winder0 released, add multple rotations to winder.
         blink(2)
-        for winder in winders:
-            winder.addRotation(direction = Winder.FORWARD, count = 200)
+        winders[0].addRotation(direction = Winder.RANDOM_SPLIT, count = turbo_button_rotation_amount)
 
-    if (abs(time.time() - last_rotation) > rotation_timeinterval_offset):  # add new steps every `rotation_offset` seconds
-        print("Added new Rotation")
+    if buttons["turboButtonW1"].rose:  # if turbo button for winder1 released, add multple rotations to winder.
+        blink(2)
+        winders[1].addRotation(direction = Winder.RANDOM_SPLIT, count = turbo_button_rotation_amount)
+
+    if (abs(time.time() - last_rotation) > rotation_timeinterval_offset):  # add new steps every `rotation_timeinterval_offset` seconds
+        print(str(rotation_timeinterval_offset)+" seconds elapsed, time to add "+str(rotation_per_timeinterval)+" new rotations")
         last_rotation = time.time()
         for winder in winders:
-            winder.addRotation(direction = Winder.RANDOM, count = rotation_per_timeinterval)
+            winder.addRotation(direction = Winder.RANDOM_SPLIT, count = rotation_per_timeinterval)
 
