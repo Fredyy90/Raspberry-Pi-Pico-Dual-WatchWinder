@@ -30,15 +30,17 @@ turbo_button_rotation_amount = const(200)   # roations to add to a winder, when 
 buttons = {}
 buttons["turboButtonW0"] = setupButton(board.GP10)
 buttons["turboButtonW1"] = setupButton(board.GP11)
+buttons["modeSwitchW0"] = setupButton(board.GP12)
+buttons["modeSwitchW1"] = setupButton(board.GP13)
 
 # winders setup
-W1_coils = (
+W0_coils = (
     DigitalInOut(board.GP2),  # Motor1 - A1
     DigitalInOut(board.GP3),  # Motor1 - A2
     DigitalInOut(board.GP4),  # Motor1 - B1
     DigitalInOut(board.GP5),  # Motor1 - B2
 )
-W2_coils = (
+W1_coils = (
     DigitalInOut(board.GP6),  # Motor2 - A1
     DigitalInOut(board.GP7),  # Motor2 - A2
     DigitalInOut(board.GP8),  # Motor2 - B1
@@ -46,8 +48,8 @@ W2_coils = (
 )
 
 winders = []
+winders.append(Winder(W0_coils))
 winders.append(Winder(W1_coils))
-winders.append(Winder(W2_coils))
 
 def blink(times):
     for _ in range(times):
@@ -82,6 +84,12 @@ while True:
     if (abs(time.time() - last_rotation) > rotation_timeinterval_offset):  # add new steps every `rotation_timeinterval_offset` seconds
         print(str(rotation_timeinterval_offset)+" seconds elapsed, time to add "+str(rotation_per_timeinterval)+" new rotations")
         last_rotation = time.time()
-        for winder in winders:
-            winder.addRotation(direction = Winder.RANDOM_SPLIT, count = rotation_per_timeinterval)
+
+        if buttons["modeSwitchW0"].value is False:
+            winders[0].addRotation(direction = Winder.RANDOM_SPLIT, count = rotation_per_timeinterval)
+        elif buttons["modeSwitchW1"].value is False:
+            winders[1].addRotation(direction = Winder.RANDOM_SPLIT, count = rotation_per_timeinterval)
+        else:
+            for winder in winders:
+                winder.addRotation(direction = Winder.RANDOM_SPLIT, count = rotation_per_timeinterval)
 
