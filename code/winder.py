@@ -4,12 +4,10 @@ from micropython import const
 from digitalio import DigitalInOut, Direction, Pull
 from adafruit_motor import stepper
 
-
-
 class Winder:
 
     stepsPerRotation = 2048
-    stepsDelay = 0.002
+    stepsDelay = 0.001
 
     CWSteps = 0
     CCWSteps = 0
@@ -59,6 +57,7 @@ class Winder:
                 self.CWSteps += self.stepsPerRotation * count
             else:
                 self.CCWSteps += self.stepsPerRotation * count
+                print("Added " + str(count) + " Roations <- CCW")
         elif direction == RANDOM_SPLIT:
             cwRotations = round(count * random())
             self.CWSteps += self.stepsPerRotation * cwRotations
