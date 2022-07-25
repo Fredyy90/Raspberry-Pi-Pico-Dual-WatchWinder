@@ -6,6 +6,13 @@ Still a work-in-progress, as I'm still waiting for the last hardware parts to ar
 
 CircuitPython Documentation: https://circuitpython.org/
 
+## Setup
+
+1. Setup CircuitPython on your Pico. CircuitPython 7.3.1 was used during development, other version might also work
+2. Copy content from the /code/ folder onto your Pico 
+3. ???
+4. Profit
+
 ## 3D Models
 
 Dual Gyro Watch Winder: [Paid Model on Cults3D]( https://cults3d.com/en/3d-model/gadget/dual-gyro-winder-watch-winder-remontoir-montre)
@@ -14,6 +21,8 @@ Raspberry Pi Pico Holder: [Free on Thingiverse](https://www.thingiverse.com/thin
 
 
 ## Hardware used:
+
+1x [1kg Sunlu PLA Black Spool](https://s.click.aliexpress.com/e/_DC6NlZt)
 
 1x [Raspberry Pi Pico](https://amzn.to/3AWCfSs)
 
