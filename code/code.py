@@ -5,8 +5,9 @@
 # Hardware setup:
 #   Stepper1: 28BYJ-48 Stepper Motor via ULN2803 driver breakout on GP2, GP3, GP4, GP5
 #   Stepper2: 28BYJ-48 Stepper Motor via ULN2803 driver breakout on GP6, GP7, GP8, GP9
-#   external power supply
 #   Button on GP10 and ground
+#   Button on GP11 and ground
+#   3-Way Switch between GP12->GND<-GP13
 
 import time
 import board
