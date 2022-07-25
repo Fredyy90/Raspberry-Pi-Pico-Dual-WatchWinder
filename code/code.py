@@ -12,14 +12,13 @@ import time
 import board
 from functions import setupButton
 from winder import Winder
+from led import LED
 from micropython import const
-from digitalio import DigitalInOut, Direction, Pull
+from digitalio import DigitalInOut, Direction
 
 print("Raspberry Pi Pico - Watch Winder")
 
-led = DigitalInOut(board.LED)
-led.direction = Direction.OUTPUT
-led.value = True
+led = LED(board.LED)
 
 last_rotation = 0                           # time of last_rotation
 rotation_timeinterval_offset = const(60*5)  # time between rotations | Default Value: 60*5 | 5 Minutes/300 Seconds
@@ -51,45 +50,32 @@ winders = []
 winders.append(Winder(W0_coils))
 winders.append(Winder(W1_coils))
 
-def blink(times):
-    for _ in range(times):
-        led.value = False
-        time.sleep(0.1)
-        led.value = True
-        time.sleep(0.1)
-
-
 while True:
 
-    for button in buttons: # update all buttons
+    led.update()  # update led
+
+    for button in buttons:  # update all buttons
         buttons[button].update()
 
-    stepped = False
-
     for winder in winders:  # update all winders
-        if(winder.update()):
-            stepped = True
-
-    if stepped is True:  # if we did a step, trigger a delay
-        winders[0].waitAfterStep()
+        winder.update()
 
     if buttons["turboButtonW0"].rose:  # if turbo button for winder0 released, add multple rotations to winder.
-        blink(2)
-        winders[0].addRotation(direction = Winder.RANDOM_SPLIT, count = turbo_button_rotation_amount)
+        led.addBlinks(2)
+        winders[0].addRotation(direction=Winder.RANDOM_SPLIT, count=turbo_button_rotation_amount)
 
     if buttons["turboButtonW1"].rose:  # if turbo button for winder1 released, add multple rotations to winder.
-        blink(2)
-        winders[1].addRotation(direction = Winder.RANDOM_SPLIT, count = turbo_button_rotation_amount)
+        led.addBlinks(2)
+        winders[1].addRotation(direction=Winder.RANDOM_SPLIT, count=turbo_button_rotation_amount)
 
     if (abs(time.time() - last_rotation) > rotation_timeinterval_offset):  # add new steps every `rotation_timeinterval_offset` seconds
         print(str(rotation_timeinterval_offset)+" seconds elapsed, time to add "+str(rotation_per_timeinterval)+" new rotations")
         last_rotation = time.time()
 
         if buttons["modeSwitchW0"].value is False:
-            winders[0].addRotation(direction = Winder.RANDOM_SPLIT, count = rotation_per_timeinterval)
+            winders[0].addRotation(direction=Winder.RANDOM_SPLIT, count=rotation_per_timeinterval)
         elif buttons["modeSwitchW1"].value is False:
             winders[1].addRotation(direction = Winder.RANDOM_SPLIT, count = rotation_per_timeinterval)
         else:
             for winder in winders:
-                winder.addRotation(direction = Winder.RANDOM_SPLIT, count = rotation_per_timeinterval)
-
+                winder.addRotation(direction=Winder.RANDOM_SPLIT, count=rotation_per_timeinterval)
