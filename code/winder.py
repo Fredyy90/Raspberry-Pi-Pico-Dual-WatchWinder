@@ -4,10 +4,13 @@ from digitalio import Direction
 from adafruit_ticks import ticks_ms, ticks_diff
 from adafruit_motor import stepper
 
+
+_stepsPerRotation = const(2048)
+_stepsDelay = const(2)
+
 class Winder:
 
-    stepsPerRotation = 2048
-    stepsDelay = 2
+
 
     CWSteps = 0
     CCWSteps = 0
@@ -30,7 +33,7 @@ class Winder:
 
     def update(self) -> bool:
         now = ticks_ms()
-        if (ticks_diff(self.last_step, now) < self.stepsDelay):
+        if (ticks_diff(self.last_step, now) < _stepsDelay):
 
             self.last_step = now
 
@@ -51,18 +54,18 @@ class Winder:
     def addRotation(self, *, direction: int = RANDOM, count: int = 1) -> None:
 
         if direction == self.FORWARD:
-            self.CWSteps += self.stepsPerRotation * count
+            self.CWSteps += _stepsPerRotation * count
         elif direction == self.BACKWARD:
-            self.CCWSteps += self.stepsPerRotation * count
+            self.CCWSteps += _stepsPerRotation * count
         elif direction == self.RANDOM:
             randomDir = random()
             if randomDir > 0.5:
-                self.CWSteps += self.stepsPerRotation * count
+                self.CWSteps += _stepsPerRotation * count
             else:
-                self.CCWSteps += self.stepsPerRotation * count
+                self.CCWSteps += _stepsPerRotation * count
                 print("Added " + str(count) + " Roations <- CCW")
         elif direction == self.RANDOM_SPLIT:
             cwRotations = round(count * random())
-            self.CWSteps += self.stepsPerRotation * cwRotations
-            self.CCWSteps += self.stepsPerRotation * (count - cwRotations)
+            self.CWSteps += _stepsPerRotation * cwRotations
+            self.CCWSteps += _stepsPerRotation * (count - cwRotations)
 
